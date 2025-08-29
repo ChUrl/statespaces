@@ -1,0 +1,59 @@
+<!doctype html>
+<html>
+  <!-- TODO: We want a toolbar at the top, the model visualization on the left -->
+  <!--       and the graph on the right. -->
+  <!--       The toolbar should have a model selector, an initial state editor, -->
+  <!--       an initial state selector (from presets) and a generate button. -->
+  <body style="margin: 5px">
+    <div
+      id="toolbar"
+      style="
+        width: fit-content;
+        height: 26px;
+        margin-top: 0px;
+        margin-bottom: 5px;
+        margin-left: auto;
+        margin-right: auto;
+        display: flex;
+        gap: 5px;
+      "
+    >
+      <button id="select_model_button">Select Model</button>
+      <button id="select_state_button">Select State</button>
+      <button id="generate_graph_button">Generate Graph</button>
+      <button id="reset_view_button">Reset View</button>
+      <button id="clear_graph_button">Clear Graph</button>
+    </div>
+
+    <div id="columns" style="display: flex">
+      <div
+        id="model"
+        style="
+          /* Body m-left / 2 + graph m-left / 2 + body m-right / 2 + borders x4 / 2 */
+          /* 2.5px           + 2.5px            + 2.5px            + 2px            */
+          width: calc(50vw - 9.5px);
+          /* Bar height + body m-top + bar m-bot + body m-bot + border x2 */
+          /* 26px       + 5px        + 5px       + 5px        + 2px       */
+          height: calc(100vh - 43px);
+          border-style: solid;
+          border-color: black;
+          border-width: 1px;
+        "
+      ></div>
+      <div
+        id="graph"
+        style="
+          width: calc(50vw - 7.5px);
+          height: calc(100vh - 43px);
+          margin-left: 5px;
+          border-style: solid;
+          border-color: black;
+          border-width: 1px;
+        "
+      ></div>
+    </div>
+
+    <!-- Load the script last, such that the dom is populated beforehand -->
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
