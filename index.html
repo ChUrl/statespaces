@@ -1,9 +1,5 @@
 <!doctype html>
 <html>
-  <!-- TODO: We want a toolbar at the top, the model visualization on the left -->
-  <!--       and the graph on the right. -->
-  <!--       The toolbar should have a model selector, an initial state editor, -->
-  <!--       an initial state selector (from presets) and a generate button. -->
   <body style="margin: 5px">
     <div
       id="toolbar"
@@ -18,8 +14,14 @@
         gap: 5px;
       "
     >
-      <button id="select_model_button">Select Model</button>
+      <button id="select_model_button">Switch Model</button>
+      <button disabled id="model_name"></button>
       <button id="select_state_button">Select State</button>
+      <button disabled id="state_name"></button>
+      <button id="up_button">UP</button>
+      <button id="down_button">DOWN</button>
+      <button id="left_button">LEFT</button>
+      <button id="right_button">RIGHT</button>
       <button id="generate_graph_button">Generate Graph</button>
       <button id="reset_view_button">Reset View</button>
       <button id="clear_graph_button">Clear Graph</button>
@@ -39,7 +41,9 @@
           border-color: black;
           border-width: 1px;
         "
-      ></div>
+      >
+        <canvas id="model_canvas" style="width: 100%; height: 100%"></canvas>
+      </div>
       <div
         id="graph"
         style="

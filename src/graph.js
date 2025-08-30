@@ -1,44 +1,8 @@
 import ForceGraph3D from "3d-force-graph";
+import { get_viewport_dims } from "./viewport.js";
+import { states_are_equal } from "./simulator/sliding_blocks/state.js";
 
-export const generate_sample_data = () => {
-  // Example data:
-  // {
-  //     "nodes": [
-  //         {
-  //           "id": "id1",
-  //           "name": "name1",
-  //           "val": 1
-  //         },
-  //         {
-  //           "id": "id2",
-  //           "name": "name2",
-  //           "val": 10
-  //         },
-  //         ...
-  //     ],
-  //     "links": [
-  //         {
-  //             "source": "id1",
-  //             "target": "id2"
-  //         },
-  //         ...
-  //     ]
-  // }
-  let data = {
-    nodes: [...Array(50).keys()].map((i) => ({ id: i })),
-    links: [...Array(50).keys()]
-      .filter((id) => id)
-      .map((id) => ({
-        source: id,
-        target: Math.round(Math.random() * (id - 1)),
-      })),
-  };
-
-  return data;
-};
-
-export const generate_graph = (data) => {
-  // TODO: Highlight the current state by coloring the node
+export const generate_graph = (data, node_click_handler) => {
   let graph = ForceGraph3D()(document.getElementById("graph"))
     // Input the data into the graph
     .graphData(data)
@@ -47,38 +11,35 @@ export const generate_graph = (data) => {
     .backgroundColor("#FFFFFF")
     .nodeColor(["#555555"])
     .linkColor(["#000000"])
+    .nodeRelSize([15])
+    .nodeResolution([1])
+    .linkResolution([1])
 
     // Set up the interactions
     .onNodeHover(
       (node) => (document.body.style.cursor = node ? "pointer" : null),
     )
     .onNodeClick((node) => {
-      // TODO: Visualize the clicked state in the GameView
-      const distance = 40;
-      const distRatio = 1 + distance / Math.hypot(node.x, node.y, node.z);
-      graph.cameraPosition(
-        { x: node.x * distRatio, y: node.y * distRatio, z: node.z * distRatio },
-        { x: node.x, y: node.y, z: node.z },
-        1000,
-      );
+      node_click_handler(node, graph);
     });
+
+  graph.d3Force("link").distance(35);
+  // graph.warmupTicks([100]);
+  // graph.cooldownTicks([0]);
 
   reset_graph_view(graph);
 
   return graph;
 };
 
-const get_viewport_dims = () => {
-  let vw = Math.max(
-    document.documentElement.clientWidth || 0,
-    window.innerWidth || 0,
+export const node_click_zoom = (node, graph) => {
+  const distance = 40;
+  const distRatio = 1 + distance / Math.hypot(node.x, node.y, node.z);
+  graph.cameraPosition(
+    { x: node.x * distRatio, y: node.y * distRatio, z: node.z * distRatio },
+    { x: node.x, y: node.y, z: node.z },
+    1000,
   );
-  let vh = Math.max(
-    document.documentElement.clientHeight || 0,
-    window.innerHeight || 0,
-  );
-
-  return [vw, vh];
 };
 
 export const reset_graph_view = (graph) => {
@@ -91,4 +52,14 @@ export const reset_graph_view = (graph) => {
     .width(vw / 2 - 9.5)
     .height(vh - 43)
     .zoomToFit();
+};
+
+export const highlight_node = (states, graph, current_state) => {
+  graph.nodeColor((node) => {
+    if (states_are_equal(states[node.id], current_state)) {
+      return "#FF0000";
+    }
+
+    return "#555555";
+  });
 };
