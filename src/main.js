@@ -26,14 +26,49 @@ let graph = null;
 // Helpers
 //
 
+export const key_of = (arr) => JSON.stringify(arr.board);
+
+const clear_states = () => {
+  states = {
+    _map: new Map(),
+
+    add(arr) {
+      const k = key_of(arr);
+      if (!this._map.has(k)) this._map.set(k, arr);
+      return this;
+    },
+
+    has(arr) {
+      return this._map.has(key_of(arr));
+    },
+
+    get(k) {
+      return this._map.get(k);
+    },
+
+    delete(arr) {
+      return this._map.delete(key_of(arr));
+    },
+
+    values() {
+      return [...this._map.values()];
+    },
+
+    get length() {
+      return this._map.size;
+    },
+  };
+};
+
 const clear_graph = () => {
   document.getElementById("graph").innerHTML = "";
   clear_visualization();
   model.visualize(initial_state);
-  states = [initial_state];
+  clear_states();
+  states.add(initial_state);
   current_state = initial_state;
   data = {
-    nodes: [{ id: 0 }],
+    nodes: [{ id: key_of(current_state) }],
     links: [],
   };
   graph = null;
@@ -61,9 +96,10 @@ window.onload = () => {
   document.getElementById("state_name").innerHTML = initial_state.name;
   clear_visualization();
   model.visualize(initial_state);
-  states = [initial_state];
+  clear_states();
+  states.add(initial_state);
   data = {
-    nodes: [{ id: 0 }],
+    nodes: [{ id: key_of(initial_state) }],
     links: [],
   };
   graph = generate_graph(data, node_click_view_state);
@@ -76,7 +112,7 @@ window.onload = () => {
 
 const node_click_view_state = (node, graph) => {
   clear_visualization();
-  current_state = states[node.id];
+  current_state = states.get(node.id);
 
   model.visualize(current_state);
   highlight_node(states, graph, current_state);
@@ -162,7 +198,8 @@ document.getElementById("select_model_button").addEventListener("click", () => {
   initial_state = model.initial_states[current_initial_state];
   selected_element = null;
   current_state = initial_state;
-  states = [initial_state];
+  clear_states();
+  states.add(initial_state);
   graph = null;
   graph = generate_graph(data, node_click_view_state);
   model.visualize(initial_state);
@@ -178,7 +215,8 @@ document.getElementById("select_state_button").addEventListener("click", () => {
   initial_state = model.initial_states[current_initial_state];
   current_state = initial_state;
   selected_element = null;
-  states = [initial_state];
+  clear_states();
+  states.add(initial_state);
   graph = null;
   graph = generate_graph(data, node_click_view_state);
   model.visualize(initial_state);

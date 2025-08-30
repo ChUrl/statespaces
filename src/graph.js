@@ -56,7 +56,7 @@ export const reset_graph_view = (graph) => {
 
 export const highlight_node = (states, graph, current_state) => {
   graph.nodeColor((node) => {
-    if (states_are_equal(states[node.id], current_state)) {
+    if (states_are_equal(states.get(node.id), current_state)) {
       return "#FF0000";
     }
 

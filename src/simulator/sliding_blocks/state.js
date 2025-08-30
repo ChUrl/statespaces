@@ -6,6 +6,7 @@ import {
   DIRECTIONS,
   invert_direction,
 } from "../../constants.js";
+import { key_of } from "../../main.js";
 
 export const arrays_are_equal = (array, other_array) => {
   if (array.length != other_array.length) {
@@ -39,6 +40,8 @@ export const state_contains_block = (state, block) => {
 };
 
 export const states_are_equal = (state, other_state) => {
+  return key_of(state) === key_of(other_state);
+
   if (state.board.length != other_state.board.length) {
     return false;
   }
@@ -74,6 +77,7 @@ export const index_of_state = (states, state) => {
 
 export const remove_block = (state, block) => {
   let new_state = structuredClone(state);
+  delete new_state.name;
 
   new_state.board.splice(block[0], 1);
 

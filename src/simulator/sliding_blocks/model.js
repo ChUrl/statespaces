@@ -13,6 +13,7 @@ import {
   insert_block,
   move_state_block,
 } from "./state.js";
+import { key_of } from "../../main.js";
 
 const initial_states = [single, two, three, four, small_klotski_like, klotski];
 
@@ -20,6 +21,8 @@ const generate = (states, initial_state, graph, previous_move) => {
   const stack = [[initial_state, previous_move]];
 
   let last_print = 0;
+
+  let data = graph.graphData();
 
   while (stack.length > 0) {
     const [current_state, prev_move] = stack.pop();
@@ -31,7 +34,7 @@ const generate = (states, initial_state, graph, previous_move) => {
       const states_before = states.length;
       const [new_state, new_block] = move(
         states,
-        graph,
+        data,
         current_state,
         block,
         direction,
@@ -48,6 +51,8 @@ const generate = (states, initial_state, graph, previous_move) => {
       }
     }
   }
+
+  graph.graphData(data);
 };
 
 const select = (state, offsetX, offsetY) => {
@@ -70,7 +75,7 @@ const select = (state, offsetX, offsetY) => {
   return null;
 };
 
-const move = (states, graph, state, block, direction) => {
+const move = (states, data, state, block, direction) => {
   if (!block_is_movable(state, block, direction)) {
     return [null, null];
   }
@@ -82,6 +87,7 @@ const move = (states, graph, state, block, direction) => {
   let new_state;
   try {
     new_state = structuredClone(state);
+    delete new_state.name; // Only need this for the initial state
   } catch (e) {
     console.log(e);
     return [null, null];
@@ -89,29 +95,24 @@ const move = (states, graph, state, block, direction) => {
   let new_block = move_block(block, direction);
   move_state_block(new_state, block, direction);
 
-  // TODO: Make states into a hashmap?
-  let index = index_of_state(states, new_state);
-
   let new_link = null;
   let new_node = null;
-  if (index !== null) {
+  if (states.has(new_state)) {
     // We already had this state, just generate a link
     new_link = {
-      source: index_of_state(states, state), // We're coming from this state...
-      target: index, // ...and ended up here, at a previous state.
+      source: key_of(state), // We're coming from this state...
+      target: key_of(new_state), // ...and ended up here, at a previous state.
     };
   } else {
-    states.push(new_state);
+    states.add(new_state);
     new_node = {
-      id: states.length - 1,
+      id: key_of(new_state),
     };
     new_link = {
-      source: index_of_state(states, state), // We're coming from this state...
-      target: states.length - 1, // ...and ended up here, at a new state.
+      source: key_of(state), // We're coming from this state...
+      target: key_of(new_state), // ...and ended up here, at a new state.
     };
   }
-
-  const data = graph.graphData();
 
   // TODO: Faster without this?
   const has_link = (data, link) => {
@@ -128,15 +129,10 @@ const move = (states, graph, state, block, direction) => {
   };
 
   if (new_node !== null) {
-    graph.graphData({
-      nodes: [...data.nodes, new_node],
-      links: [...data.links, new_link],
-    });
+    data.nodes.push(new_node);
+    data.links.push(new_link);
   } else if (!has_link(data, new_link)) {
-    graph.graphData({
-      nodes: data.nodes,
-      links: [...data.links, new_link],
-    });
+    data.links.push(new_link);
   }
 
   return [new_state, new_block];
