@@ -24,80 +24,20 @@ export const arrays_are_equal = (array, other_array) => {
   return true;
 };
 
-export const state_contains_block = (state, block) => {
-  return (
-    state.board.length >= block[0] &&
-    arrays_are_equal(state.board[block[0]], block)
-  );
-
-  // for (let i = 0; i < state.board.length / 4; i++) {
-  //   const other_block = state.board.slice(i * 4, (i + 1) * 4);
-  //
-  //   if (arrays_are_equal(block, other_block)) {
-  //     return true;
-  //   }
-  // }
-  //
-  // return false;
-};
-
 export const states_are_equal = (state, other_state) => {
-  return key_of(state) === key_of(other_state);
+  let _state = structuredClone(state);
+  let _other_state = structuredClone(other_state);
 
-  if (state.board.length != other_state.board.length) {
-    return false;
-  }
-
+  // Disable to compare IDs aswell (explodes the state space though)
   for (let i = 0; i < state.board.length; i++) {
-    if (!arrays_are_equal(state.board[i], other_state.board[i])) {
-      return false;
-    }
+    // Remove IDs
+    _state.board[i].splice(0, 1);
+    _other_state.board[i].splice(0, 1);
   }
+  _state.board.sort();
+  _other_state.board.sort();
 
-  return true;
-
-  // for (let i = 0; i < state.board.length / 4; i++) {
-  //   const block = state.board.slice(i * 4, (i + 1) * 4);
-  //
-  //   if (!state_contains_block(other_state, block)) {
-  //     return false;
-  //   }
-  // }
-  //
-  // return true;
-};
-
-export const index_of_state = (states, state) => {
-  for (let i = 0; i < states.length; i++) {
-    if (states_are_equal(states[i], state)) {
-      return i;
-    }
-  }
-
-  return null;
-};
-
-export const remove_block = (state, block) => {
-  let new_state = structuredClone(state);
-  delete new_state.name;
-
-  new_state.board.splice(block[0], 1);
-
-  return new_state;
-
-  // for (let i = 0; i < state.board.length / 4; i++) {
-  //   const other_block = state.board.slice(i * 4, (i + 1) * 4);
-  //
-  //   if (arrays_are_equal(block, other_block)) {
-  //     new_state.board.splice(i * 4, 4);
-  //   }
-  // }
-  //
-  // return new_state;
-};
-
-export const insert_block = (state, block) => {
-  state.board.splice(block[0], 0, block);
+  return key_of(_state) === key_of(_other_state);
 };
 
 export const move_block = (block, direction) => {

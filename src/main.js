@@ -26,28 +26,44 @@ let graph = null;
 // Helpers
 //
 
-export const key_of = (arr) => JSON.stringify(arr.board);
+export const prepare = (state) => {
+  let _state = structuredClone(state);
+
+  for (let i = 0; i < state.board.length; i++) {
+    // Remove IDs
+    _state.board[i].splice(0, 1);
+  }
+  // Sort, so we can compare keys
+  _state.board.sort();
+
+  return _state;
+};
+
+// Disable "prepare" to compare IDs aswell (explodes the state space though)
+export const key_of = (state) => JSON.stringify(prepare(state).board);
 
 const clear_states = () => {
   states = {
     _map: new Map(),
 
-    add(arr) {
-      const k = key_of(arr);
-      if (!this._map.has(k)) this._map.set(k, arr);
+    add(state) {
+      const key = key_of(state);
+      if (!this._map.has(key)) {
+        this._map.set(key, state);
+      }
       return this;
     },
 
-    has(arr) {
-      return this._map.has(key_of(arr));
+    has(state) {
+      return this._map.has(key_of(state));
     },
 
-    get(k) {
-      return this._map.get(k);
+    get(key) {
+      return this._map.get(key);
     },
 
-    delete(arr) {
-      return this._map.delete(key_of(arr));
+    delete(state) {
+      return this._map.delete(key_of(state));
     },
 
     values() {
@@ -135,19 +151,20 @@ document.getElementById("model_canvas").addEventListener("click", (event) => {
 });
 
 const move = (direction) => {
-  if (selected_element === null) {
+  if (selected_element === null || graph === null) {
     return;
   }
 
   const [state, element] = model.move(
     states,
-    graph,
+    data,
     current_state,
     selected_element,
     DIRECTIONS[direction],
   );
 
   if (state !== null) {
+    graph.graphData(data);
     current_state = state;
     selected_element = element;
     clear_visualization();
@@ -190,26 +207,22 @@ document.addEventListener("keyup", (event) => {
 //
 
 document.getElementById("select_model_button").addEventListener("click", () => {
-  clear_graph();
-  clear_visualization();
   current_model = (current_model + 1) % models.length;
   model = models[current_model];
   current_initial_state = 0;
   initial_state = model.initial_states[current_initial_state];
-  selected_element = null;
   current_state = initial_state;
+  selected_element = null;
   clear_states();
   states.add(initial_state);
-  graph = null;
-  graph = generate_graph(data, node_click_view_state);
+  clear_graph();
+  clear_visualization();
   model.visualize(initial_state);
   document.getElementById("model_name").innerHTML = model.name;
   document.getElementById("state_name").innerHTML = initial_state.name;
 });
 
 document.getElementById("select_state_button").addEventListener("click", () => {
-  clear_graph();
-  clear_visualization();
   current_initial_state =
     (current_initial_state + 1) % model.initial_states.length;
   initial_state = model.initial_states[current_initial_state];
@@ -217,8 +230,10 @@ document.getElementById("select_state_button").addEventListener("click", () => {
   selected_element = null;
   clear_states();
   states.add(initial_state);
-  graph = null;
-  graph = generate_graph(data, node_click_view_state);
+  clear_graph();
+  clear_visualization();
+  // graph = null;
+  // graph = generate_graph(data, node_click_view_state);
   model.visualize(initial_state);
   document.getElementById("state_name").innerHTML = initial_state.name;
 });

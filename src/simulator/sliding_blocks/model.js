@@ -7,10 +7,7 @@ import { klotski } from "./initial_states/klotski.js";
 import {
   get_moves,
   block_is_movable,
-  index_of_state,
-  remove_block,
   move_block,
-  insert_block,
   move_state_block,
 } from "./state.js";
 import { key_of } from "../../main.js";
@@ -44,6 +41,11 @@ const generate = (states, initial_state, graph, previous_move) => {
       if (states_after - last_print > 250) {
         console.log(`Generating: Found ${states_after} states...`);
         last_print = states_after;
+      }
+
+      // Arbitrary upper limit in case of errors
+      if (states_after > 100000) {
+        return;
       }
 
       if (states_after > states_before) {
@@ -80,10 +82,6 @@ const move = (states, data, state, block, direction) => {
     return [null, null];
   }
 
-  // let new_state = remove_block(state, block);
-  // let new_block = move_block(block, direction);
-  // insert_block(new_state, block);
-
   let new_state;
   try {
     new_state = structuredClone(state);
@@ -95,44 +93,22 @@ const move = (states, data, state, block, direction) => {
   let new_block = move_block(block, direction);
   move_state_block(new_state, block, direction);
 
-  let new_link = null;
+  const new_link = {
+    source: key_of(state), // We're coming from this state...
+    target: key_of(new_state), // ...and ended up here, at a previous state.
+  };
+
   let new_node = null;
-  if (states.has(new_state)) {
-    // We already had this state, just generate a link
-    new_link = {
-      source: key_of(state), // We're coming from this state...
-      target: key_of(new_state), // ...and ended up here, at a previous state.
-    };
-  } else {
+  if (!states.has(new_state)) {
     states.add(new_state);
     new_node = {
       id: key_of(new_state),
     };
-    new_link = {
-      source: key_of(state), // We're coming from this state...
-      target: key_of(new_state), // ...and ended up here, at a new state.
-    };
   }
 
-  // TODO: Faster without this?
-  const has_link = (data, link) => {
-    // for (let l of data.links) {
-    //   if (l.source.id === link.source && l.target.id === link.target) {
-    //     return true;
-    //   }
-    //   if (l.source.id === link.target && l.target.id === link.source) {
-    //     return true;
-    //   }
-    // }
-
-    return false;
-  };
-
+  data.links.push(new_link);
   if (new_node !== null) {
     data.nodes.push(new_node);
-    data.links.push(new_link);
-  } else if (!has_link(data, new_link)) {
-    data.links.push(new_link);
   }
 
   return [new_state, new_block];

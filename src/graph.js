@@ -23,8 +23,10 @@ export const generate_graph = (data, node_click_handler) => {
       node_click_handler(node, graph);
     });
 
+  // graph.forceEngine("ngraph");
+  // graph.numDimensions([3]);
   graph.d3Force("link").distance(35);
-  // graph.warmupTicks([100]);
+  graph.warmupTicks([10]);
   // graph.cooldownTicks([0]);
 
   reset_graph_view(graph);
