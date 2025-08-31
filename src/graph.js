@@ -28,6 +28,8 @@ export const generate_graph = (data, node_click_handler) => {
   graph.d3Force("link").distance(35);
   // graph.warmupTicks([10]);
   // graph.cooldownTicks([0]);
+  graph.cooldownTicks(Infinity);
+  graph.d3ReheatSimulation();
 
   reset_graph_view(graph);
 
