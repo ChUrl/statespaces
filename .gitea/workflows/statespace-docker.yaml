@@ -1,0 +1,22 @@
+name: Build StateSpaces Docker Image
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  statespaces-docker:
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Login to container registry
+        uses: docker/login-action@v3
+        with:
+          registry: gitea.vps.chriphost.de
+          username: ${{ secrets.CONTAINER_REGISTRY_USER }}
+          password: ${{ secrets.CONTAINER_REGISTRY_TOKEN }}
+      - name: Build StateSpaces Docker Image
+        run: docker build --file dockerfile --tag gitea.vps.chriphost.de/christoph/statespaces:latest .
+      - name: Push StateSpaces Docker Image
+        run: docker push gitea.vps.chriphost.de/christoph/statespaces:latest
