@@ -183,6 +183,22 @@ const visualize_path = (from_state, to_state) => {
   // For each state in path: visualize(state)
 };
 
+const add_block = (state, x0, y0, x1, y1) => {
+  let dir;
+  if (x1 - x0 > y1 - y0) {
+    dir = HORIZONTAL;
+  } else if (x1 - x0 < y1 - y0) {
+    dir = VERTICAL;
+  } else {
+    // No square blocks for this model
+    return null;
+  }
+
+  let new_block = [state.board.length, dir, x0, y0, x1, y1];
+  state.board.push(new_block);
+  return new_block;
+};
+
 export const restricted_sliding_blocks_model = {
   name: "Restricted Sliding Blocks",
   generate,
@@ -192,4 +208,11 @@ export const restricted_sliding_blocks_model = {
   initial_states,
   select,
   move,
+  empty_state: {
+    name: "Custom",
+    width: 5,
+    height: 5,
+    board: [],
+  },
+  add_block,
 };

@@ -162,6 +162,12 @@ const visualize_path = (from_state, to_state) => {
   // For each state in path: visualize(state)
 };
 
+const add_block = (state, x0, y0, x1, y1) => {
+  let new_block = [state.board.length, x0, y0, x1, y1];
+  state.board.push(new_block);
+  return new_block;
+};
+
 export const sliding_blocks_model = {
   name: "Sliding Blocks",
   generate,
@@ -171,4 +177,11 @@ export const sliding_blocks_model = {
   initial_states,
   select,
   move,
+  empty_state: {
+    name: "Custom",
+    width: 5,
+    height: 6,
+    board: [],
+  },
+  add_block,
 };
