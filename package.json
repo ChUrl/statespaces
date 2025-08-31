@@ -10,7 +10,8 @@
   },
   "devDependencies": {
     "prettier": "^3.6.2",
-    "vite": "^7.1.2"
+    "vite": "^7.1.2",
+    "vite-plugin-singlefile": "^2.3.0"
   },
   "dependencies": {
     "3d-force-graph": "^1.78.4"
